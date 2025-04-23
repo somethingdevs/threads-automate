@@ -80,3 +80,18 @@ async def post_thread_to_api(access_token: str, text: str, image_url: str = None
         response = await client.post(post_url, json=payload, headers=headers)
 
     return response
+
+
+async def publish_thread(access_token: str, creation_id: str):
+    publish_url = "https://graph.threads.net/me/threads_publish"
+    payload = {"creation_id": creation_id}
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(publish_url, json=payload, headers=headers)
+
+    return response
