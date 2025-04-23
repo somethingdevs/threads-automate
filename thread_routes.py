@@ -32,3 +32,8 @@ async def callback(request: Request):
 
     token_data = await exchange_code_for_token(code)
     return token_data
+
+
+@router.get("/debug-login-url")
+def debug_login():
+    return {"url": generate_login_url()}
