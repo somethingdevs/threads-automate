@@ -59,3 +59,24 @@ async def exchange_for_long_lived_token(short_token: str):
         return {"error": "Failed to get long-lived token", "details": response.text}
 
     return response.json()
+
+
+async def post_thread_to_api(access_token: str, text: str, image_url: str = None):
+    post_url = "https://graph.threads.net/me/threads"
+    payload = {
+        "text": text,
+    }
+
+    if image_url:
+        payload["media_type"] = "IMAGE"
+        payload["image_url"] = image_url
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(post_url, json=payload, headers=headers)
+
+    return response

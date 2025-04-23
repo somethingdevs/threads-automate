@@ -1,3 +1,4 @@
+from threads_auth import post_thread_to_api
 from threads_auth import generate_login_url, exchange_code_for_token
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
@@ -37,3 +38,21 @@ async def callback(request: Request):
 @router.get("/debug-login-url")
 def debug_login():
     return {"url": generate_login_url()}
+
+
+@router.post("/post-thread")
+async def post_thread(request: Request):
+    data = await request.json()
+    access_token = data.get("access_token")
+    text = data.get("text")
+    image_url = data.get("image_url")
+
+    if not access_token or not text:
+        return {"error": "Missing required fields: access_token and text"}
+
+    response = await post_thread_to_api(access_token, text, image_url)
+
+    return {
+        "status_code": response.status_code,
+        "response": response.json()
+    }
