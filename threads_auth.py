@@ -12,7 +12,7 @@ AUTH_BASE_URL = "https://www.facebook.com/v19.0/dialog/oauth"
 TOKEN_URL = "https://graph.facebook.com/v19.0/oauth/access_token"
 LONG_LIVED_URL = "https://graph.facebook.com/v19.0/oauth/access_token"
 
-SCOPES = "threads_basic,threads_content_publish"
+SCOPES = "threads_basic%2Cthreads_content_publish"
 
 
 def generate_login_url(state="123"):
