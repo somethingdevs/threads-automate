@@ -1,4 +1,4 @@
-from threads_auth import publish_thread, post_thread_to_api, generate_login_url, exchange_code_for_token
+from threads_auth import generate_login_url, exchange_code_for_token, post_and_publish_thread
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 import os
@@ -37,9 +37,6 @@ async def callback(request: Request):
 @router.get("/debug-login-url")
 def debug_login():
     return {"url": generate_login_url()}
-
-
-from threads_auth import post_and_publish_thread
 
 
 @router.post("/post-and-publish-thread")
