@@ -8,11 +8,13 @@ APP_ID = os.getenv("APP_ID")
 APP_SECRET = os.getenv("APP_SECRET")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
 
-AUTH_BASE_URL = "https://www.facebook.com/v19.0/dialog/oauth"
-TOKEN_URL = "https://graph.facebook.com/v19.0/oauth/access_token"
-LONG_LIVED_URL = "https://graph.facebook.com/v19.0/oauth/access_token"
+# ✅ Updated URLs for Threads API
+AUTH_BASE_URL = "https://www.threads.net/oauth/authorize"
+TOKEN_URL = "https://graph.threads.net/oauth/access_token"
+LONG_LIVED_URL = "https://graph.threads.net/oauth/access_token"
 
-SCOPES = "threads_basic%2Cthreads_content_publish"
+# ✅ Expanded scopes based on official sample (you can reduce if needed)
+SCOPES = "threads_basic,threads_content_publish"
 
 
 def generate_login_url(state="123"):
@@ -20,7 +22,7 @@ def generate_login_url(state="123"):
         f"{AUTH_BASE_URL}?"
         f"client_id={APP_ID}&"
         f"redirect_uri={REDIRECT_URI}&"
-        f"scope={SCOPES}&"
+        f"scope={SCOPES.replace(',', '%2C')}&"
         f"response_type=code&"
         f"state={state}"
     )
@@ -28,11 +30,14 @@ def generate_login_url(state="123"):
 
 async def exchange_code_for_token(code: str):
     async with httpx.AsyncClient() as client:
-        response = await client.get(TOKEN_URL, params={
+        response = await client.post(TOKEN_URL, data={
             "client_id": APP_ID,
-            "redirect_uri": REDIRECT_URI,
             "client_secret": APP_SECRET,
-            "code": code
+            "redirect_uri": REDIRECT_URI,
+            "code": code,
+            "grant_type": "authorization_code"
+        }, headers={
+            "Content-Type": "application/x-www-form-urlencoded"
         })
 
     if response.status_code != 200:
