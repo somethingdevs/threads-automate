@@ -61,7 +61,8 @@ async def exchange_for_long_lived_token(short_token: str):
     return response.json()
 
 
-async def post_thread_to_api(access_token: str, text: str, image_url: str = None):
+async def post_and_publish_thread(access_token: str, text: str, image_url: str = None):
+    # Step 1: Create the container
     post_url = "https://graph.threads.net/me/threads"
     payload = {
         "text": text,
@@ -77,21 +78,25 @@ async def post_thread_to_api(access_token: str, text: str, image_url: str = None
     }
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(post_url, json=payload, headers=headers)
+        post_response = await client.post(post_url, json=payload, headers=headers)
 
-    return response
+    if post_response.status_code != 200:
+        return {"error": "Failed to create post", "details": post_response.text}
 
+    creation_id = post_response.json().get("id")
 
-async def publish_thread(access_token: str, creation_id: str):
+    # Step 2: Publish the thread
     publish_url = "https://graph.threads.net/me/threads_publish"
-    payload = {"creation_id": creation_id}
-
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
+    publish_payload = {"creation_id": creation_id}
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(publish_url, json=payload, headers=headers)
+        publish_response = await client.post(publish_url, json=publish_payload, headers=headers)
 
-    return response
+    if publish_response.status_code != 200:
+        return {"error": "Failed to publish thread", "details": publish_response.text}
+
+    return {
+        "status_code": publish_response.status_code,
+        "thread_id": publish_response.json().get("id"),
+        "creation_id": creation_id
+    }

@@ -39,36 +39,18 @@ def debug_login():
     return {"url": generate_login_url()}
 
 
-@router.post("/post-thread")
-async def post_thread(request: Request):
+from threads_auth import post_and_publish_thread
+
+
+@router.post("/post-and-publish-thread")
+async def post_and_publish(request: Request):
     data = await request.json()
     access_token = data.get("access_token")
     text = data.get("text")
-    image_url = data.get("image_url")
+    image_url = data.get("image_url")  # optional
 
     if not access_token or not text:
         return {"error": "Missing required fields: access_token and text"}
 
-    response = await post_thread_to_api(access_token, text, image_url)
-
-    return {
-        "status_code": response.status_code,
-        "response": response.json()
-    }
-
-
-@router.post("/publish-thread")
-async def publish_created_thread(request: Request):
-    data = await request.json()
-    access_token = data.get("access_token")
-    creation_id = data.get("creation_id")
-
-    if not access_token or not creation_id:
-        return {"error": "Missing required fields"}
-
-    response = await publish_thread(access_token, creation_id)
-
-    return {
-        "status_code": response.status_code,
-        "response": response.json()
-    }
+    result = await post_and_publish_thread(access_token, text, image_url)
+    return result
